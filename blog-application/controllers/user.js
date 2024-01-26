@@ -25,4 +25,20 @@ router.get('/:id', async (req, res) => {
     }
 })
 
+router.put('/:username', async (req, res) => {
+    const user = await User.findOne({
+        where:{
+            username:req.params.username
+        }
+    })
+    
+    user.username = req.body.username
+
+    const updatedUser = await user.save()
+
+    
+
+    res.json(updatedUser)
+})
+
 module.exports = router
