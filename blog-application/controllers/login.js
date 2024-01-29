@@ -28,7 +28,7 @@ router.post('/', async (req, res) => {
         }
         res.json(response)
     } else {
-        res.send(401).json({
+        res.status(401).json({
             error:'invalid username or password'
         })
     }

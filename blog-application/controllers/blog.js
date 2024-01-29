@@ -1,26 +1,46 @@
 const router = require('express').Router()
+const { Op } = require("sequelize");
 
-const { Blog } = require('../models')
+const { Blog, User } = require('../models')
 
-router.get('/', async(_, res) => {
-    const blogs = await Blog.findAll()
+router.get('/', async(req, res) => {
+
+    const blogs = await Blog.findAll({
+        attributes: {exclude:['userId']}, 
+        include:{
+            model: User
+        },
+        where:{
+            title:{
+                [Op.iLike]: req.query.search ? `%${req.query.search}%` : '%%'
+            }
+        }
+    })
     res.json(blogs)
 })
 
 router.post('/', async (req, res) => {
-    try{
+    if(req.body.userId){
         const blog = await Blog.create(req.body)
         res.json(blog)
-    } catch(error) {
-        console.log('something went wrong')
-        console.log(JSON.stringify(req.body))
+    } else {
+        res.status(401).json({message:"user must be logged in"})
     }
+
 })
 
 router.delete('/:id', async (req, res) => {
+    if(!req.body.userId) {
+        res.status(401).json({message: "user must be logged in"})
+    }
+
     const blog = await Blog.findByPk(req.params.id)
-    await blog.destroy()
-    res.status(200).json(blog)
+    if(blog.userId === req.body.userId){
+        await blog.destroy()
+        res.status(200).json(blog)
+    } else {
+        res.status(403).json({message:"blog can only be deleted by the user who created it"})
+    }
 })
 
 router.put('/:id', async (req, res) => {
