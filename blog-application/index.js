@@ -9,12 +9,14 @@ const { userExtractor } = require('./util/middleware')
 const blogsRouter = require('./controllers/blog')
 const usersRouter = require('./controllers/user')
 const loginRouter = require('./controllers/login')
+const authorRouter = require('./controllers/author')
 
 app.use(express.json())
 
 app.use('/api/blogs', userExtractor, blogsRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
+app.use('/api/authors', authorRouter)
 
 app.get('/ping', (_, res)=>{
     res.send('pong') 
